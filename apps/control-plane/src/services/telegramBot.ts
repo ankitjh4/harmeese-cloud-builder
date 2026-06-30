@@ -31,6 +31,59 @@ async function sendTelegram(token: string | undefined, chatId: string, text: str
   }
 }
 
+export async function getTelegramBotSetup(): Promise<{
+  configured: boolean;
+  bot?: { id: number; username?: string; firstName?: string };
+  recentChats: Array<{ id: string; type?: string; title?: string; username?: string; firstName?: string }>;
+  error?: string;
+}> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return { configured: false, recentChats: [] };
+
+  try {
+    const [meResponse, updatesResponse] = await Promise.all([
+      fetch(`https://api.telegram.org/bot${token}/getMe`),
+      fetch(`https://api.telegram.org/bot${token}/getUpdates?limit=20`)
+    ]);
+    if (!meResponse.ok) throw new Error(`getMe failed: ${meResponse.status}`);
+    if (!updatesResponse.ok) throw new Error(`getUpdates failed: ${updatesResponse.status}`);
+
+    const me = await meResponse.json() as { result?: { id: number; username?: string; first_name?: string } };
+    const updates = await updatesResponse.json() as {
+      result?: Array<{
+        message?: {
+          chat?: { id: number | string; type?: string; title?: string; username?: string; first_name?: string };
+        };
+      }>;
+    };
+    const seen = new Map<string, { id: string; type?: string; title?: string; username?: string; firstName?: string }>();
+    for (const update of updates.result ?? []) {
+      const chat = update.message?.chat;
+      if (!chat) continue;
+      const id = String(chat.id);
+      seen.set(id, {
+        id,
+        type: chat.type,
+        title: chat.title,
+        username: chat.username,
+        firstName: chat.first_name
+      });
+    }
+
+    return {
+      configured: true,
+      bot: me.result ? { id: me.result.id, username: me.result.username, firstName: me.result.first_name } : undefined,
+      recentChats: [...seen.values()]
+    };
+  } catch (error) {
+    return {
+      configured: true,
+      recentChats: [],
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
 function helpText(): string {
   return [
     "Harmeese Cloud Builder commands:",
