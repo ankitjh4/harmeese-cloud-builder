@@ -1,6 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEnv } from "@harmeese/shared/env.js";
 import type { AgentEvent, AgentEventType, JobRecord } from "@harmeese/shared/types.js";
 import { getLogs } from "./logs.js";
 
@@ -74,12 +75,13 @@ export async function getJobMonitor(job: JobRecord): Promise<{
 }> {
   const events = (await readEvents()).filter((event) => event.jobId === job.id);
   const runs = await listAgentRuns(job);
+  const env = readEnv();
   return {
     jobId: job.id,
     projectName: job.projectName,
     status: job.status,
     backend: job.agentBackend ?? "openrouter",
-    model: job.openrouterModel ?? "default",
+    model: job.openrouterModel || env.openrouterModel,
     promptPack: job.promptPack ?? "harmeese-webmaster",
     websiteUrl: job.websiteUrl,
     instanceId: job.instanceId,

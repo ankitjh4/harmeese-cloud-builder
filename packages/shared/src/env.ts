@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import type { HarmeeseMode } from "./types.js";
 
 export interface AppEnv {
@@ -17,9 +18,25 @@ export interface AppEnv {
   allowRealProvisioning: boolean;
 }
 
+function findEnvFile(path: string): string | undefined {
+  if (existsSync(path)) return path;
+  if (path !== ".env") return undefined;
+
+  let current = process.cwd();
+  for (let depth = 0; depth < 8; depth += 1) {
+    const candidate = join(current, ".env");
+    if (existsSync(candidate)) return candidate;
+    const parent = dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return undefined;
+}
+
 export function loadEnvFile(path = ".env"): void {
-  if (!existsSync(path)) return;
-  const lines = readFileSync(path, "utf8").split(/\r?\n/);
+  const envFile = findEnvFile(path);
+  if (!envFile) return;
+  const lines = readFileSync(resolve(envFile), "utf8").split(/\r?\n/);
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) continue;
@@ -50,7 +67,7 @@ export function readEnv(): AppEnv {
     jarvislabsApiKey: process.env.JARVISLABS_API_KEY ?? "",
     anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
     openrouterApiKey: process.env.OPENROUTER_API_KEY ?? "",
-    openrouterModel: process.env.OPENROUTER_MODEL ?? "anthropic/claude-3.5-sonnet",
+    openrouterModel: process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini",
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
     telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "",
     defaultProjectName: process.env.DEFAULT_PROJECT_NAME ?? "ai-training-site",

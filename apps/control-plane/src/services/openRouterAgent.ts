@@ -48,7 +48,7 @@ function fallbackPlan(input: OpenRouterPlanInput, reason: string): AgentPlanResu
 
 export async function createOpenRouterPlan(input: OpenRouterPlanInput): Promise<AgentPlanResult> {
   const apiKey = input.job.openrouterApiKey || input.env.openrouterApiKey;
-  const model = input.job.openrouterModel || input.env.openrouterModel || "anthropic/claude-3.5-sonnet";
+  const model = input.job.openrouterModel || input.env.openrouterModel || "openai/gpt-4o-mini";
   if (!apiKey) return fallbackPlan(input, "OPENROUTER_API_KEY is not configured.");
 
   const promptPack = getPromptPack(input.job.promptPack);
@@ -111,4 +111,3 @@ export async function createOpenRouterPlan(input: OpenRouterPlanInput): Promise<
     tokensCompletion: data.usage?.completion_tokens
   };
 }
-

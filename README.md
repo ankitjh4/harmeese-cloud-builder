@@ -62,7 +62,7 @@ The default agent backend is `openrouter`. Add these values in `.env` or in the 
 
 ```env
 OPENROUTER_API_KEY=...
-OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+OPENROUTER_MODEL=openai/gpt-4o-mini
 ```
 
 When Telegram receives `/change <request>`, Harmeese:
