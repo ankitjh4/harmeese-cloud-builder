@@ -27,14 +27,15 @@ function localFallback(lead: LeadInput, reason: string): LeadAiHandling {
 function parseJsonPlan(text: string, lead: LeadInput, model: string): LeadAiHandling {
   try {
     const parsed = JSON.parse(text) as Partial<LeadAiHandling>;
+    const toText = (value: unknown) => typeof value === "string" ? value : JSON.stringify(value);
     return {
       backend: "openrouter",
       model,
       summary: String(parsed.summary || `${lead.company} submitted a website lead.`),
       priority: parsed.priority === "low" || parsed.priority === "high" ? parsed.priority : "medium",
-      recommendedActions: Array.isArray(parsed.recommendedActions) ? parsed.recommendedActions.map(String).slice(0, 6) : ["draft reply"],
+      recommendedActions: Array.isArray(parsed.recommendedActions) ? parsed.recommendedActions.map(toText).slice(0, 6) : ["draft reply"],
       draftReply: String(parsed.draftReply || `Hi ${lead.name}, thanks for reaching out. We will follow up shortly.`),
-      automationHooks: Array.isArray(parsed.automationHooks) ? parsed.automationHooks.map(String).slice(0, 6) : ["prepare customer reply"],
+      automationHooks: Array.isArray(parsed.automationHooks) ? parsed.automationHooks.map(toText).slice(0, 6) : ["prepare customer reply"],
       rawPlan: text
     };
   } catch {
@@ -91,4 +92,3 @@ export async function handleLeadWithAi(lead: LeadInput): Promise<LeadAiHandling>
   if (!content) return localFallback(lead, "OpenRouter returned an empty handling plan");
   return parseJsonPlan(content, lead, model);
 }
-

@@ -1,17 +1,17 @@
 import { Router } from "express";
+import { isBoilerplate } from "@harmeese/shared/boilerplates.js";
 import type { AppEnv } from "@harmeese/shared/env.js";
-import type { AgentBackend, Boilerplate, LaunchJobInput, PromptPack } from "@harmeese/shared/types.js";
+import type { AgentBackend, LaunchJobInput, PromptPack } from "@harmeese/shared/types.js";
 import { createJob, getJob, listJobs } from "../services/jobStore.js";
 import { getLogs } from "../services/logs.js";
 import { runProvisioning } from "../services/provisioner.js";
 
-const boilerplates: Boilerplate[] = ["ai-training-company", "saas-landing-page", "course-platform"];
 const agentBackends: AgentBackend[] = ["openrouter", "claude-code-placeholder"];
 const promptPacks: PromptPack[] = ["harmeese-webmaster", "app-builder", "saas-landing"];
 
 function parseLaunch(body: Partial<LaunchJobInput>, env: AppEnv): LaunchJobInput {
   const projectName = (body.projectName || env.defaultProjectName).trim();
-  const boilerplate = body.boilerplate && boilerplates.includes(body.boilerplate)
+  const boilerplate = body.boilerplate && isBoilerplate(body.boilerplate)
     ? body.boilerplate
     : "ai-training-company";
   const agentBackend = body.agentBackend && agentBackends.includes(body.agentBackend)

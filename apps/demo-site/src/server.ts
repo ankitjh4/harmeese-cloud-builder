@@ -1,6 +1,7 @@
 import express from "express";
 import { loadEnvFile } from "@harmeese/shared/env.js";
 import { landingPage } from "./pages/landing.js";
+import { getRuntimeBoilerplate } from "./services/runtimeConfig.js";
 import { handleLeadWithAi } from "./services/aiBackend.js";
 import { queueAiActionHooks } from "./services/actionHooks.js";
 import { notifyLead } from "./services/telegramNotify.js";
@@ -14,7 +15,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "harmeese-demo-site" }));
-app.get("/", (req, res) => res.type("html").send(landingPage(req.query.success === "1")));
+app.get("/", async (req, res, next) => {
+  try {
+    res.type("html").send(landingPage(req.query.success === "1", await getRuntimeBoilerplate()));
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.post("/lead", async (req, res, next) => {
   try {

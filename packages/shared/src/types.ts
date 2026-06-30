@@ -11,7 +11,13 @@ export type JobStatus =
 export type Boilerplate =
   | "ai-training-company"
   | "saas-landing-page"
-  | "course-platform";
+  | "course-platform"
+  | "personal-portfolio"
+  | "creator-link-in-bio"
+  | "consultant-website"
+  | "local-service-business"
+  | "event-speaker-page"
+  | "nonprofit-campaign";
 
 export type AgentBackend =
   | "openrouter"

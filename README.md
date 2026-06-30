@@ -155,6 +155,23 @@ In mock mode, launching a job:
 3. Simulates install/start stages with real logs.
 4. Exposes the website URL as `http://localhost:8080`.
 5. Enables Telegram webhook commands for paired chat IDs.
+6. Switches the local demo website preview to the selected boilerplate without restarting the site.
+
+## Website Boilerplates
+
+The launch UI includes these starter website types:
+
+- AI Training Company Website
+- SaaS Landing Page
+- Course Platform
+- Personal Portfolio
+- Creator Link-in-Bio
+- Consultant Website
+- Local Service Business
+- Event Speaker Page
+- Nonprofit Campaign
+
+Mock mode renders distinct copy, sections, CTA text, interest options, and lead form context for each boilerplate. Telegram changes and AI backend hooks work the same way across all of them.
 
 ## Real Mode
 

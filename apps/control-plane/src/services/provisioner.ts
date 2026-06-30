@@ -6,6 +6,7 @@ import { classifyCommand } from "@harmeese/shared/safety.js";
 import type { AppEnv } from "@harmeese/shared/env.js";
 import type { JobRecord } from "@harmeese/shared/types.js";
 import { recordAgentEvent } from "./agentMonitor.js";
+import { setDemoSiteBoilerplate } from "./demoSiteRuntime.js";
 import { addLog } from "./logs.js";
 import { updateJob } from "./jobStore.js";
 
@@ -72,6 +73,10 @@ export async function runProvisioning(job: JobRecord, env: AppEnv): Promise<void
     await sleep(env.mode === "mock" ? 700 : 50);
     const target = await materializeProject(job, env);
     await addLog(job.id, `Project template installed at ${target}`);
+    if (env.mode === "mock") {
+      await setDemoSiteBoilerplate(job.boilerplate);
+      await addLog(job.id, `Demo site boilerplate switched to ${job.boilerplate}`);
+    }
     await recordAgentEvent(job.id, "agent", "Project template and agent instructions installed.", {
       backend: job.agentBackend ?? "openrouter",
       promptPack: job.promptPack ?? "harmeese-webmaster"

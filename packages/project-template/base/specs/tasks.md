@@ -9,6 +9,7 @@
 - [x] Log notifications locally when credentials are missing.
 - [x] Keep Telegram `/change` requests staged so the website remains online.
 - [x] Route form submissions through an AI backend handling hook with a safe fallback.
+- [x] Support multiple website boilerplates, including personal portfolio, creator, consultant, local business, speaker, and nonprofit starters.
 
 ## Future Change Requests
 

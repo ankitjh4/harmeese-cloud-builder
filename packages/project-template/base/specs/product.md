@@ -12,10 +12,22 @@ Create a modern lead-generation website for a corporate AI training company. The
 
 ## Core Pages
 
-- Landing page with a clear hero and workshop CTA.
-- Course/program section for role-specific training.
-- Why choose us section focused on practical outcomes.
-- Lead form that captures name, company, email, team size, interest, and message.
+- Landing page with a clear hero and CTA.
+- Content sections appropriate to the selected boilerplate.
+- Why choose us / proof section focused on practical outcomes.
+- Lead/contact form that captures name, company, email, team size or context, interest, and message.
+
+Supported boilerplates include:
+
+- AI training company
+- SaaS landing page
+- Course platform
+- Personal portfolio
+- Creator link-in-bio
+- Consultant website
+- Local service business
+- Event speaker page
+- Nonprofit campaign
 
 ## Lead Workflow
 
