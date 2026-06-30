@@ -14,6 +14,7 @@ export interface AppEnv {
   telegramChatId: string;
   defaultProjectName: string;
   defaultWebsitePort: number;
+  publicWebsiteUrl: string;
   controlPlaneUrl: string;
   allowRealProvisioning: boolean;
 }
@@ -72,6 +73,7 @@ export function readEnv(): AppEnv {
     telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "",
     defaultProjectName: process.env.DEFAULT_PROJECT_NAME ?? "ai-training-site",
     defaultWebsitePort: intEnv("DEFAULT_WEBSITE_PORT", 8080),
+    publicWebsiteUrl: process.env.PUBLIC_WEBSITE_URL ?? "",
     controlPlaneUrl: process.env.CONTROL_PLANE_URL ?? "http://localhost:4000",
     allowRealProvisioning: process.env.ALLOW_REAL_PROVISIONING === "true"
   };

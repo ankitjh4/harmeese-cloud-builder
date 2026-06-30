@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { readEnv } from "@harmeese/shared/env.js";
 import type { JobRecord } from "@harmeese/shared/types.js";
 import { recordAgentEvent } from "./agentMonitor.js";
-import { findLatestJobForChat } from "./jobStore.js";
+import { findLatestJobForChat, updateJob } from "./jobStore.js";
 import { addLog, getLogs } from "./logs.js";
 import { createOpenRouterPlan } from "./openRouterAgent.js";
 import { getProjectPath } from "./provisioner.js";
@@ -88,12 +88,70 @@ function helpText(): string {
   return [
     "Harmeese Cloud Builder commands:",
     "/status",
+    "/models",
+    "/model <openrouter-model-id>",
     "/logs",
     "/spec",
     "/change <request>",
     "/deploy",
     "/help"
   ].join("\n");
+}
+
+const commonOpenRouterModels = [
+  "openai/gpt-4o-mini",
+  "openai/gpt-4o",
+  "openai/gpt-4.1-mini",
+  "anthropic/claude-3.5-sonnet",
+  "anthropic/claude-3.7-sonnet",
+  "google/gemini-2.0-flash-001",
+  "meta-llama/llama-3.1-70b-instruct"
+];
+
+function publicWebsiteUrl(job: JobRecord): string {
+  return readEnv().publicWebsiteUrl || job.websiteUrl || "pending";
+}
+
+function currentModel(job: JobRecord): string {
+  return job.openrouterModel || readEnv().openrouterModel || "openai/gpt-4o-mini";
+}
+
+function normalizeText(text: string): string {
+  return text.trim().toLowerCase();
+}
+
+function statusText(job: JobRecord): string {
+  return [
+    `Project: ${job.projectName}`,
+    `Status: ${job.status}`,
+    `Instance: ${job.instanceId ?? "none"}`,
+    `Website: ${publicWebsiteUrl(job)}`,
+    `Control plane: ${readEnv().controlPlaneUrl}`,
+    `OpenRouter model: ${currentModel(job)}`
+  ].join("\n");
+}
+
+function modelsText(job: JobRecord): string {
+  return [
+    `Current OpenRouter model: ${currentModel(job)}`,
+    "",
+    "Common model IDs:",
+    ...commonOpenRouterModels.map((model) => `- ${model}`),
+    "",
+    "Set one with:",
+    "/model <openrouter-model-id>"
+  ].join("\n");
+}
+
+async function setModel(job: JobRecord, model: string): Promise<string> {
+  const trimmed = model.trim();
+  if (!/^[a-zA-Z0-9._:-]+\/[a-zA-Z0-9._:-]+$/.test(trimmed)) {
+    return "Usage: /model <provider/model-id>\nExample: /model openai/gpt-4o-mini";
+  }
+  await updateJob(job.id, { openrouterModel: trimmed });
+  await addLog(job.id, `OpenRouter model changed to ${trimmed}`);
+  await recordAgentEvent(job.id, "openrouter", "OpenRouter model changed from Telegram.", { model: trimmed });
+  return `OpenRouter model set to ${trimmed}. Future /change requests will use this model.`;
 }
 
 async function queueChange(job: JobRecord, request: string): Promise<string> {
@@ -170,34 +228,43 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<{ ok
   if (!chatId || !text) return { ok: true };
 
   const job = await findLatestJobForChat(chatId);
+  const normalized = normalizeText(text);
   let reply = "";
 
-  if (text === "/help" || text === "help") {
+  if (normalized === "/help" || normalized === "help" || normalized === "commands") {
     reply = helpText();
   } else if (!job) {
     reply = "No ready Harmeese project is paired with this chat ID yet.";
-  } else if (text === "/status") {
-    reply = `Project: ${job.projectName}\nStatus: ${job.status}\nInstance: ${job.instanceId ?? "none"}\nWebsite: ${job.websiteUrl ?? "pending"}`;
-  } else if (text === "/logs") {
+  } else if (normalized === "/status" || normalized === "status" || normalized.includes("status")) {
+    reply = statusText(job);
+  } else if (normalized === "/models" || normalized === "models" || normalized === "model") {
+    reply = modelsText(job);
+  } else if (normalized.startsWith("/model ")) {
+    reply = await setModel(job, text.slice("/model ".length));
+  } else if (normalized.startsWith("use model ")) {
+    reply = await setModel(job, text.slice("use model ".length));
+  } else if (normalized === "/logs" || normalized === "logs" || normalized.includes("logs")) {
     reply = (await getLogs(job.id)).slice(-10).join("\n") || "No logs yet.";
-  } else if (text === "/spec") {
+  } else if (normalized === "/spec" || normalized === "spec" || normalized.includes("spec")) {
     const spec = await readFile(join(getProjectPath(job), "specs", "product.md"), "utf8").catch(() => "Spec not found.");
     reply = spec.slice(0, 3500);
   } else if (text.startsWith("/change ")) {
     const request = text.slice("/change ".length).trim();
     reply = request ? await queueChange(job, request) : "Usage: /change <request>";
-  } else if (text === "/deploy") {
+  } else if (normalized === "/deploy" || normalized === "deploy") {
     const deployMessage = job.mode === "mock"
       ? "Mock deploy completed. Live website stayed online; staged changes were not applied automatically."
       : "Deploy requested for real provisioner hook. Production integration must health-check a staged build before traffic handoff.";
     await addLog(job.id, deployMessage);
     await recordAgentEvent(job.id, "deploy", deployMessage);
-    reply = deployMessage;
-  } else {
+    reply = `${deployMessage}\nWebsite: ${publicWebsiteUrl(job)}`;
+  } else if (text.startsWith("/")) {
     reply = helpText();
+  } else {
+    reply = await queueChange(job, text);
   }
 
-  const token = job?.telegramBotToken;
+  const token = job?.telegramBotToken ?? readEnv().telegramBotToken;
   await sendTelegram(token, chatId, reply);
   return { ok: true, reply };
 }

@@ -153,7 +153,7 @@ In mock mode, launching a job:
 1. Creates a fake JarvisLabs instance ID.
 2. Copies `packages/project-template/base` into `.harmeese/projects/<job>/<project>/`.
 3. Simulates install/start stages with real logs.
-4. Exposes the website URL as `http://localhost:8080`.
+4. Exposes the website URL as `PUBLIC_WEBSITE_URL` when configured, otherwise `http://localhost:8080`.
 5. Enables Telegram webhook commands for paired chat IDs.
 6. Switches the local demo website preview to the selected boilerplate without restarting the site.
 
@@ -186,25 +186,111 @@ Real mode also requires JarvisLabs and Anthropic credentials. The real adapter i
 
 ## Telegram Bot Setup
 
-1. Create a bot with BotFather.
-2. Copy the bot token into the control plane form or `TELEGRAM_BOT_TOKEN`.
-3. Find your chat ID and enter it in the form or `TELEGRAM_CHAT_ID`.
-4. Configure Telegram to send updates to:
+### 1. Create A Bot
+
+1. In Telegram, open BotFather.
+2. Send `/newbot`.
+3. Choose a display name and username.
+4. Copy the token BotFather gives you into `.env`:
+
+```env
+TELEGRAM_BOT_TOKEN=1234567890:replace-me
+```
+
+Keep this token private. Anyone with the token can control the bot.
+
+### 2. Find Your Chat ID
+
+Start the control plane locally or on your server:
+
+```bash
+pnpm dev
+```
+
+Open your bot in Telegram and send any message, for example:
 
 ```text
-http://<your-control-plane-host>/api/telegram/webhook
+/start
+```
+
+Then open the setup endpoint:
+
+```text
+http://localhost:4000/api/telegram/setup
+```
+
+If the control plane is hosted remotely, use that host instead:
+
+```text
+https://<your-control-plane-host>/api/telegram/setup
+```
+
+The response includes `recentChats`. Copy the `id` for your private chat into `.env`:
+
+```env
+TELEGRAM_CHAT_ID=5051454777
+```
+
+After a webhook is configured, Telegram disables `getUpdates`, so this setup endpoint may return `getUpdates failed: 409`. That is expected once the webhook is live.
+
+### 3. Configure Public URLs
+
+Telegram webhooks require a public HTTPS URL. Localhost, private IPs, and plain HTTP URLs are not enough for Telegram's hosted Bot API.
+
+For a public server, put Caddy or another HTTPS reverse proxy in front of the control plane:
+
+```caddyfile
+your-host.example.com {
+  reverse_proxy 127.0.0.1:4000
+}
+```
+
+Set the public control-plane URL in `.env`:
+
+```env
+CONTROL_PLANE_URL=https://your-host.example.com
+```
+
+If the demo website is reachable on a public URL, set it too. Telegram `/status` and `/deploy` replies prefer this URL over localhost:
+
+```env
+PUBLIC_WEBSITE_URL=http://your-host.example.com:8080
+```
+
+Restart the app after changing `.env`.
+
+### 4. Set The Telegram Webhook
+
+Configure Telegram to send updates to:
+
+```text
+https://<your-control-plane-host>/api/telegram/webhook
+```
+
+Using `curl`:
+
+```bash
+curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \
+  -H "content-type: application/json" \
+  -d '{"url":"https://<your-control-plane-host>/api/telegram/webhook","allowed_updates":["message"]}'
 ```
 
 Supported commands:
 
 - `/status`
+- `/models`
+- `/model <openrouter-model-id>`
 - `/logs`
 - `/spec`
 - `/change <request>`
 - `/deploy`
 - `/help`
 
-For `/change`, the MVP queues a spec-driven task in `specs/tasks.md` and writes an `agent_runs/<timestamp>.md` plan. With OpenRouter configured, the plan is model-generated. It does not apply patches automatically yet.
+Natural-language messages are treated as change requests for the paired project. For example, sending `make the hero section more premium` queues the same flow as `/change make the hero section more premium`.
+
+For `/change` and natural-language requests, the MVP queues a spec-driven task in `specs/tasks.md` and writes an `agent_runs/<timestamp>.md` plan. With OpenRouter configured, the plan is model-generated using the current OpenRouter model. It does not apply patches automatically yet.
+
+Use `/models` to see the current model and common model IDs. Use `/model <provider/model>` to change the model stored on the paired job for future change requests.
 
 ## JarvisLabs Integration Notes
 

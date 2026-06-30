@@ -93,13 +93,14 @@ export async function runProvisioning(job: JobRecord, env: AppEnv): Promise<void
     await updateJob(job.id, { status: "starting", agentStatus: "starting website and Telegram agent" });
     await sleep(env.mode === "mock" ? 700 : 50);
     const exposed = await adapter.exposePort(instance.instanceId, env.defaultWebsitePort);
-    await addLog(job.id, `Website exposed on ${exposed.url}`);
+    const websiteUrl = env.publicWebsiteUrl || exposed.url;
+    await addLog(job.id, `Website exposed on ${websiteUrl}`);
     await addLog(job.id, "Telegram agent listener ready. Webhook endpoint: /api/telegram/webhook");
     await recordAgentEvent(job.id, "telegram", "Telegram agent listener ready.");
 
     await updateJob(job.id, {
       status: "ready",
-      websiteUrl: exposed.url,
+      websiteUrl,
       agentStatus: "ready"
     });
     await addLog(job.id, "Provisioning complete.");
