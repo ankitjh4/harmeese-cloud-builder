@@ -7,111 +7,184 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main class="shell">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">Self-hosted AI webmaster</p>
-          <h1>Harmeese Cloud Builder</h1>
-          <p class="tagline">Launch a Telegram-controlled AI coding server for your website.</p>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <span class="brand-mark">H</span>
+          <div>
+            <p class="eyebrow">Self-hosted AI webmaster</p>
+            <h1>Harmeese Cloud Builder</h1>
+          </div>
         </div>
-        <div class="mode-pill">Mock mode default</div>
+        <div class="topbar-actions">
+          <span class="environment-badge">Mock mode</span>
+          <a class="repo-link" href="https://github.com/ankitjh4/harmeese-cloud-builder" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </header>
+
+      <section class="overview">
+        <div>
+          <h2>Launch a Telegram-controlled AI coding server for your website.</h2>
+          <p>Provision a website workspace, pair a Telegram agent, route change requests through OpenRouter, and monitor every run from one operator console.</p>
+        </div>
+        <div class="overview-stats" aria-label="Platform summary">
+          <div><span>Backend</span><strong>OpenRouter</strong></div>
+          <div><span>Website</span><strong>Port 8080</strong></div>
+          <div><span>Control</span><strong>Telegram</strong></div>
+        </div>
       </section>
 
-      <section class="layout">
-        <form id="launch-form" class="panel">
-          <h2>Launch AI Builder</h2>
-          <label>
-            Project name
-            <input name="projectName" value="neuraledge-academy" required />
-          </label>
-          <label>
-            JarvisLabs API key
-            <input name="jarvislabsApiKey" type="password" autocomplete="off" placeholder="Optional in mock mode" />
-          </label>
-          <label>
-            Anthropic API key
-            <input name="anthropicApiKey" type="password" autocomplete="off" placeholder="Optional legacy fallback" />
-          </label>
-          <label>
-            OpenRouter API key
-            <input name="openrouterApiKey" type="password" autocomplete="off" placeholder="Optional; enables model-generated /change plans" />
-          </label>
-          <label>
-            OpenRouter model
-            <input name="openrouterModel" value="openai/gpt-4o-mini" placeholder="openai/gpt-4o-mini, google/gemini-2.5-flash..." />
-          </label>
-          <label>
-            Agent backend
-            <select name="agentBackend">
-              <option value="openrouter">OpenRouter model bridge</option>
-              <option value="claude-code-placeholder">Claude Code placeholder</option>
-            </select>
-          </label>
-          <label>
-            Prompt pack
-            <select name="promptPack">
-              <option value="harmeese-webmaster">Harmeese AI Webmaster</option>
-              <option value="app-builder">App Builder</option>
-              <option value="saas-landing">SaaS Landing Builder</option>
-            </select>
-          </label>
-          <label>
-            Telegram bot token
-            <input name="telegramBotToken" type="password" autocomplete="off" placeholder="Optional for local demo" />
-          </label>
-          <label>
-            Telegram chat ID
-            <input name="telegramChatId" placeholder="123456789 or pairing chat ID" />
-          </label>
-          <label>
-            Boilerplate
-            <select name="boilerplate">
-              <option value="ai-training-company">AI Training Company Website</option>
-              <option value="saas-landing-page">SaaS Landing Page</option>
-              <option value="course-platform">Course Platform</option>
-            </select>
-          </label>
-          <button type="submit">Launch AI Builder</button>
+      <section class="workspace-grid">
+        <form id="launch-form" class="surface launch-surface">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Provisioning</p>
+              <h2>Launch AI Builder</h2>
+            </div>
+            <span class="step-pill">01</span>
+          </div>
+
+          <div class="field-group">
+            <h3>Project</h3>
+            <label>
+              <span>Project name</span>
+              <input name="projectName" value="neuraledge-academy" required />
+            </label>
+            <label>
+              <span>Boilerplate</span>
+              <select name="boilerplate">
+                <option value="ai-training-company">AI Training Company Website</option>
+                <option value="saas-landing-page">SaaS Landing Page</option>
+                <option value="course-platform">Course Platform</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-group">
+            <h3>Cloud and Model</h3>
+            <label>
+              <span>JarvisLabs API key</span>
+              <input name="jarvislabsApiKey" type="password" autocomplete="off" placeholder="Optional in mock mode" />
+            </label>
+            <label>
+              <span>OpenRouter API key</span>
+              <input name="openrouterApiKey" type="password" autocomplete="off" placeholder="Uses local .env when blank" />
+            </label>
+            <label>
+              <span>OpenRouter model</span>
+              <input name="openrouterModel" value="openai/gpt-4o-mini" placeholder="openai/gpt-4o-mini" />
+            </label>
+            <label>
+              <span>Anthropic API key</span>
+              <input name="anthropicApiKey" type="password" autocomplete="off" placeholder="Optional legacy fallback" />
+            </label>
+          </div>
+
+          <div class="field-row">
+            <label>
+              <span>Agent backend</span>
+              <select name="agentBackend">
+                <option value="openrouter">OpenRouter model bridge</option>
+                <option value="claude-code-placeholder">Claude Code placeholder</option>
+              </select>
+            </label>
+            <label>
+              <span>Prompt pack</span>
+              <select name="promptPack">
+                <option value="harmeese-webmaster">Harmeese AI Webmaster</option>
+                <option value="app-builder">App Builder</option>
+                <option value="saas-landing">SaaS Landing Builder</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-group">
+            <h3>Telegram</h3>
+            <label>
+              <span>Bot token</span>
+              <input name="telegramBotToken" type="password" autocomplete="off" placeholder="Optional for local demo" />
+            </label>
+            <label>
+              <span>Chat ID</span>
+              <input name="telegramChatId" placeholder="123456789 or pairing chat ID" />
+            </label>
+          </div>
+
+          <button class="primary-action" type="submit">Launch AI Builder</button>
         </form>
 
-        <section class="panel status-panel">
-          <h2>Job Status</h2>
-          <div id="status" class="status">No job launched yet.</div>
-          <div class="links">
-            <h3>Links</h3>
-            <a id="website-link" href="#" target="_blank" rel="noreferrer">Website URL pending</a>
-            <span id="agent-status">Agent status pending</span>
-            <span id="instance-id">Mock instance ID pending</span>
-          </div>
-          <h3>Provisioning Logs</h3>
-          <pre id="logs" class="logs">Launch a job to see logs.</pre>
-        </section>
-      </section>
+        <section class="stack">
+          <section class="surface status-surface">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Deployment</p>
+                <h2>Job Status</h2>
+              </div>
+              <div id="status" class="status">No job launched yet.</div>
+            </div>
 
-      <section class="panel monitor-panel">
-        <div class="panel-heading">
-          <div>
-            <h2>Agent Monitor</h2>
-            <p>Model bridge, run queue, and recent control-plane events.</p>
-          </div>
-          <span id="monitor-state" class="monitor-state">Idle</span>
-        </div>
-        <div class="metric-grid">
-          <div><span>Backend</span><strong id="monitor-backend">-</strong></div>
-          <div><span>Model</span><strong id="monitor-model">-</strong></div>
-          <div><span>Prompt pack</span><strong id="monitor-prompt">-</strong></div>
-          <div><span>Queued runs</span><strong id="monitor-runs">0</strong></div>
-        </div>
-        <div class="monitor-grid">
-          <div>
-            <h3>Recent Events</h3>
-            <ul id="monitor-events" class="event-list"><li>No events yet.</li></ul>
-          </div>
-          <div>
-            <h3>Agent Run Files</h3>
-            <ul id="monitor-files" class="event-list"><li>No run files yet.</li></ul>
-          </div>
-        </div>
+            <div class="timeline" aria-label="Provisioning timeline">
+              <div class="timeline-step" data-step="queued"><span></span><strong>Queued</strong></div>
+              <div class="timeline-step" data-step="provisioning"><span></span><strong>Provisioning</strong></div>
+              <div class="timeline-step" data-step="installing"><span></span><strong>Installing</strong></div>
+              <div class="timeline-step" data-step="starting"><span></span><strong>Starting</strong></div>
+              <div class="timeline-step" data-step="ready"><span></span><strong>Ready</strong></div>
+            </div>
+
+            <div class="link-grid">
+              <a id="website-link" class="link-tile" href="#" target="_blank" rel="noreferrer">
+                <span>Website URL</span>
+                <strong>Pending</strong>
+              </a>
+              <div class="link-tile">
+                <span>Agent</span>
+                <strong id="agent-status">Pending</strong>
+              </div>
+              <div class="link-tile">
+                <span>Instance</span>
+                <strong id="instance-id">Pending</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="surface monitor-surface">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Runtime</p>
+                <h2>Agent Monitor</h2>
+              </div>
+              <span id="monitor-state" class="monitor-state">Idle</span>
+            </div>
+
+            <div class="metric-grid">
+              <div><span>Backend</span><strong id="monitor-backend">-</strong></div>
+              <div><span>Model</span><strong id="monitor-model">-</strong></div>
+              <div><span>Prompt pack</span><strong id="monitor-prompt">-</strong></div>
+              <div><span>Queued runs</span><strong id="monitor-runs">0</strong></div>
+            </div>
+
+            <div class="monitor-grid">
+              <div>
+                <h3>Recent Events</h3>
+                <ul id="monitor-events" class="event-list"><li>No events yet.</li></ul>
+              </div>
+              <div>
+                <h3>Agent Run Files</h3>
+                <ul id="monitor-files" class="event-list"><li>No run files yet.</li></ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="surface logs-surface">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Audit trail</p>
+                <h2>Provisioning Logs</h2>
+              </div>
+            </div>
+            <pre id="logs" class="logs">Launch a job to see logs.</pre>
+          </section>
+        </section>
       </section>
     </main>
     <script src="/app.js"></script>
