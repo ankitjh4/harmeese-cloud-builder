@@ -88,6 +88,25 @@ form submit
 
 The AI backend can queue hooks such as internal form filling, reply drafting, proposal creation, and follow-up call tasks. The MVP deliberately queues these hooks instead of performing irreversible external side effects. If OpenRouter is unavailable, the website still saves the lead and uses a local fallback handling plan.
 
+## Maton Calendar And Mail Hooks
+
+Harmeese can use Maton as the gateway for external calendar and mail actions. Configure:
+
+```env
+MATON_API_KEY=...
+MATON_ENABLE_EXTERNAL_ACTIONS=false
+MATON_CALENDAR_CONNECTION_ID=
+MATON_GMAIL_CONNECTION_ID=
+MATON_FROM_EMAIL=
+```
+
+By default `MATON_ENABLE_EXTERNAL_ACTIONS=false`, so AI hooks are queued locally and reported in Telegram without touching Gmail or Calendar. When enabled, the demo site attempts to:
+
+- create a Gmail draft through Maton for the AI-generated reply
+- create a Google Calendar follow-up hold through Maton
+
+The MVP does not automatically send emails or call customers. Those should remain explicit approved hooks.
+
 ## No-Downtime Change Contract
 
 Telegram `/change` requests must not take the live website down. They are staged into `specs/tasks.md` and `agent_runs/`; deployment is a separate step. Production integration should use a health-checked staging build and only switch traffic after the new website is ready.
@@ -210,6 +229,8 @@ Fill this in only after confirming the official install path for your environmen
 - Real provisioning requires `HARMESE_MODE=real` and `ALLOW_REAL_PROVISIONING=true`.
 - User-provided Telegram text is never executed as a shell command.
 - OpenRouter output is saved as a plan, not executed as shell commands.
+- Maton external actions are disabled unless `MATON_ENABLE_EXTERNAL_ACTIONS=true`.
+- Gmail integration creates drafts, not sent messages, in the MVP.
 - Leaked proprietary prompt content is not included; use only prompts you are allowed to use.
 - `packages/shared/src/safety.ts` classifies commands as `allowed`, `needs_approval`, or `blocked`.
 - The real adapter refuses non-allowlisted commands.

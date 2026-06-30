@@ -1,12 +1,13 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { LeadAiHandling, LeadInput } from "@harmeese/shared/types.js";
+import type { AiActionResult, LeadAiHandling, LeadInput } from "@harmeese/shared/types.js";
 
 export interface StoredLead extends LeadInput {
   id: string;
   createdAt: string;
   aiHandling?: LeadAiHandling;
+  actionResults?: AiActionResult[];
 }
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -20,10 +21,15 @@ async function readLeads(): Promise<StoredLead[]> {
   }
 }
 
-export async function saveLead(input: LeadInput, aiHandling?: LeadAiHandling): Promise<StoredLead> {
+export async function saveLead(
+  input: LeadInput,
+  aiHandling?: LeadAiHandling,
+  actionResults?: AiActionResult[]
+): Promise<StoredLead> {
   const lead: StoredLead = {
     ...input,
     aiHandling,
+    actionResults,
     id: `lead-${Date.now().toString(36)}`,
     createdAt: new Date().toISOString()
   };

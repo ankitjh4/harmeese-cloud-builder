@@ -30,6 +30,14 @@ function formatLeadMessage(lead: LeadInput | StoredLead): string {
     );
   }
 
+  if ("actionResults" in lead && lead.actionResults?.length) {
+    message.push(
+      "",
+      "AI action hooks:",
+      ...lead.actionResults.map((result) => `- ${result.provider}/${result.hook}: ${result.status} - ${result.note}`)
+    );
+  }
+
   return [
     ...message,
     "",

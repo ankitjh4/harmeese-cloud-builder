@@ -24,10 +24,13 @@ When a visitor submits the lead form:
 1. Save the lead locally.
 2. Route the submission through the AI backend.
 3. Have the AI backend summarize, prioritize, draft a reply, and queue safe automation hooks.
-4. Notify the configured Telegram chat with the lead and AI handling plan.
-5. Include suggested reply actions: draft reply, summarize, create proposal, update site.
+4. Use Maton hooks, when explicitly enabled, to create Gmail drafts and Calendar follow-up holds.
+5. Notify the configured Telegram chat with the lead, AI handling plan, and action hook results.
+6. Include suggested reply actions: draft reply, summarize, create proposal, update site.
 
 The website backend is intentionally AI-first. Forms and interactions should call AI handling hooks instead of requiring a hand-coded business workflow for every interaction.
+
+External side effects are guarded. Calendar and mail hooks are queued locally by default and only call Maton when explicit environment flags are enabled.
 
 ## Availability Contract
 

@@ -67,6 +67,14 @@ export interface LeadAiHandling {
   rawPlan?: string;
 }
 
+export interface AiActionResult {
+  hook: string;
+  provider: "maton" | "local-queue";
+  status: "queued" | "drafted" | "scheduled" | "skipped" | "failed";
+  note: string;
+  externalId?: string;
+}
+
 export type CommandSafety = "allowed" | "needs_approval" | "blocked";
 
 export interface CommandClassification {

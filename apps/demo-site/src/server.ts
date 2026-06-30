@@ -20,8 +20,8 @@ app.post("/lead", async (req, res, next) => {
   try {
     const lead = parseLead(req.body);
     const aiHandling = await handleLeadWithAi(lead);
-    const storedLead = await saveLead(lead, aiHandling);
-    await queueAiActionHooks(lead, aiHandling);
+    const actionResults = await queueAiActionHooks(lead, aiHandling);
+    const storedLead = await saveLead(lead, aiHandling, actionResults);
     await notifyLead(storedLead);
     res.redirect("/?success=1#lead");
   } catch (error) {
