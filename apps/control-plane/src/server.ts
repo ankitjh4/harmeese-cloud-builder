@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { readEnv } from "@harmeese/shared/env.js";
 import { healthRouter } from "./routes/health.js";
 import { jobsRouter } from "./routes/jobs.js";
+import { monitorRouter } from "./routes/monitor.js";
 import { telegramRouter } from "./routes/telegram.js";
 
 const env = readEnv();
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(healthRouter);
 app.use(jobsRouter(env));
+app.use(monitorRouter);
 app.use(telegramRouter);
 
 app.use(express.static(webDir));

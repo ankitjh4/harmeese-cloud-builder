@@ -75,7 +75,7 @@ h1 {
 
 .layout {
   display: grid;
-  grid-template-columns: 420px 1fr;
+  grid-template-columns: 460px 1fr;
   gap: 20px;
   align-items: start;
 }
@@ -177,6 +177,84 @@ button:hover {
   font-size: 0.88rem;
 }
 
+.monitor-panel {
+  margin-top: 20px;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: start;
+}
+
+.panel-heading p {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.monitor-state {
+  border: 1px solid var(--line);
+  background: #e8f3f1;
+  color: var(--accent-dark);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.metric-grid div {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fbfcfd;
+  padding: 12px;
+  min-width: 0;
+}
+
+.metric-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metric-grid strong {
+  display: block;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+.monitor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.event-list li {
+  border: 1px solid var(--line);
+  background: #fbfcfd;
+  border-radius: 7px;
+  padding: 10px 12px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 840px) {
   .hero,
   .layout {
@@ -186,5 +264,19 @@ button:hover {
   .mode-pill,
   .status-panel {
     margin-top: 18px;
+  }
+
+  .metric-grid,
+  .monitor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-heading {
+    display: block;
+  }
+
+  .monitor-state {
+    display: inline-block;
+    margin-top: 12px;
   }
 }

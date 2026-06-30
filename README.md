@@ -2,7 +2,7 @@
 
 One-click AI webmaster: launch a cloud coding agent that builds and maintains your website from Telegram.
 
-Harmeese Cloud Builder is a self-hosted "OpenClaw for website builders" MVP. It gives you a local control plane, a mock JarvisLabs provisioning flow, a generated project template with specs and agent instructions, a demo AI training company website, and Telegram command/lead notification integration.
+Harmeese Cloud Builder is a self-hosted "OpenClaw for website builders" MVP. It gives you a local control plane, a mock JarvisLabs provisioning flow, a generated project template with specs and agent instructions, a demo AI training company website, Telegram command/lead notification integration, an OpenRouter-compatible agent planner, and a baked-in agent monitor.
 
 ## Demo Screenshots
 
@@ -24,6 +24,8 @@ Browser admin UI
       -> real adapter: gated placeholder behind ALLOW_REAL_PROVISIONING=true
     -> project template materialized under .harmeese/projects/
     -> Telegram webhook command handler
+    -> OpenRouter model planner for /change requests
+    -> Agent monitor API and UI
 
 apps/demo-site Express app
   -> AI training landing page
@@ -40,6 +42,7 @@ pnpm dev
 
 The control plane runs at `http://localhost:4000`.
 The demo website runs at `http://localhost:8080`.
+Both apps bind to `0.0.0.0` for local network demos.
 
 Copy `.env.example` to `.env` if you want to provide default tokens:
 
@@ -51,6 +54,52 @@ The current apps read environment variables from the shell. You can also prefix 
 
 ```bash
 TELEGRAM_BOT_TOKEN=... TELEGRAM_CHAT_ID=... pnpm dev
+```
+
+## OpenRouter Agent Backend
+
+The default agent backend is `openrouter`. Add these values in `.env` or in the launch form:
+
+```env
+OPENROUTER_API_KEY=...
+OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+```
+
+When Telegram receives `/change <request>`, Harmeese:
+
+1. Appends the request to `specs/tasks.md`.
+2. Sends product/design/task context to OpenRouter if a key is configured.
+3. Writes the returned implementation plan to `agent_runs/<timestamp>.md`.
+4. Records events in the agent monitor.
+
+If no OpenRouter key is configured, the same flow uses a local safe planner so demos do not crash.
+
+### Prompt Packs
+
+The repo includes original, safe prompt packs:
+
+- `harmeese-webmaster`
+- `app-builder`
+- `saas-landing`
+
+They are inspired by common app-building workflows but do not vendor or reproduce leaked proprietary system prompts. If you have prompts you are legally allowed to use, add them as new prompt packs in `apps/control-plane/src/services/promptPacks.ts`.
+
+## Agent Monitor
+
+The control plane includes an agent monitor panel with:
+
+- active backend
+- model
+- prompt pack
+- queued run count
+- recent provisioning/OpenRouter/Telegram/deploy events
+- recent `agent_runs/*.md` files
+
+APIs:
+
+```http
+GET /api/monitor
+GET /api/jobs/:id/monitor
 ```
 
 ## Mock Mode
@@ -101,7 +150,7 @@ Supported commands:
 - `/deploy`
 - `/help`
 
-For `/change`, the MVP queues a spec-driven task in `specs/tasks.md` and writes an `agent_runs/<timestamp>.md` plan. It does not run Claude Code automatically yet.
+For `/change`, the MVP queues a spec-driven task in `specs/tasks.md` and writes an `agent_runs/<timestamp>.md` plan. With OpenRouter configured, the plan is model-generated. It does not apply patches automatically yet.
 
 ## JarvisLabs Integration Notes
 
@@ -115,7 +164,7 @@ The adapter interface is complete:
 
 Mock mode is fully implemented. Real mode is guarded and stubbed. Add official JarvisLabs commands only in the real adapter, keep command construction allowlisted, and never pass raw Telegram/user input to a shell.
 
-## Claude Code Integration Notes
+## Claude Code / Local Harness Notes
 
 The generated project includes:
 
@@ -127,11 +176,11 @@ The generated project includes:
 - `agent/skills/*.md`
 - `infra/start-agent.sh`
 
-`infra/start-agent.sh` is the intended integration point for Claude Code or a Claude-compatible coding-agent bridge. The bootstrap script includes:
+`infra/start-agent.sh` is the intended integration point for Claude Code or another local coding-agent harness. OpenRouter is the default MVP model bridge. The bootstrap script includes:
 
 ```bash
 install_claude_code() {
-  echo "TODO: install Claude Code or compatible coding agent here"
+  echo "TODO: optional Claude Code install goes here if this project uses the Claude Code harness"
 }
 ```
 
@@ -142,6 +191,8 @@ Fill this in only after confirming the official install path for your environmen
 - Mock mode is default.
 - Real provisioning requires `HARMESE_MODE=real` and `ALLOW_REAL_PROVISIONING=true`.
 - User-provided Telegram text is never executed as a shell command.
+- OpenRouter output is saved as a plan, not executed as shell commands.
+- Leaked proprietary prompt content is not included; use only prompts you are allowed to use.
 - `packages/shared/src/safety.ts` classifies commands as `allowed`, `needs_approval`, or `blocked`.
 - The real adapter refuses non-allowlisted commands.
 - Blocked examples include SSH key reads, `curl | bash`, privilege escalation shells, and destructive root deletion.
@@ -158,7 +209,8 @@ Fill this in only after confirming the official install path for your environmen
 7. Receive Telegram alert, or see the notification logged when keys are absent.
 8. Send `/change add a workshop for legal teams`.
 9. See the spec task queued in `.harmeese/projects/<job>/neuraledge-academy/specs/tasks.md`.
-10. Send `/deploy` and receive “Mock deploy completed.”
+10. Open the Agent Monitor panel and see the generated run file/event.
+11. Send `/deploy` and receive “Mock deploy completed.”
 
 ## Scripts
 
@@ -176,6 +228,6 @@ pnpm lint
 - Add authenticated control plane access.
 - Add persistent SQLite storage.
 - Add a Telegram pairing flow.
-- Invoke Claude Code from queued `agent_runs/` plans.
+- Optionally invoke Claude Code or another local coding harness from queued `agent_runs/` plans.
 - Add patch previews and approval workflow before live website changes.
 - Add deployment targets beyond the local demo site.

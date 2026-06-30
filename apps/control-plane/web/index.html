@@ -30,7 +30,30 @@
           </label>
           <label>
             Anthropic API key
-            <input name="anthropicApiKey" type="password" autocomplete="off" placeholder="Optional in mock mode" />
+            <input name="anthropicApiKey" type="password" autocomplete="off" placeholder="Optional legacy fallback" />
+          </label>
+          <label>
+            OpenRouter API key
+            <input name="openrouterApiKey" type="password" autocomplete="off" placeholder="Optional; enables model-generated /change plans" />
+          </label>
+          <label>
+            OpenRouter model
+            <input name="openrouterModel" value="anthropic/claude-3.5-sonnet" placeholder="openai/gpt-4o-mini, anthropic/claude-3.5-sonnet..." />
+          </label>
+          <label>
+            Agent backend
+            <select name="agentBackend">
+              <option value="openrouter">OpenRouter model bridge</option>
+              <option value="claude-code-placeholder">Claude Code placeholder</option>
+            </select>
+          </label>
+          <label>
+            Prompt pack
+            <select name="promptPack">
+              <option value="harmeese-webmaster">Harmeese AI Webmaster</option>
+              <option value="app-builder">App Builder</option>
+              <option value="saas-landing">SaaS Landing Builder</option>
+            </select>
           </label>
           <label>
             Telegram bot token
@@ -63,6 +86,32 @@
           <h3>Provisioning Logs</h3>
           <pre id="logs" class="logs">Launch a job to see logs.</pre>
         </section>
+      </section>
+
+      <section class="panel monitor-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Agent Monitor</h2>
+            <p>Model bridge, run queue, and recent control-plane events.</p>
+          </div>
+          <span id="monitor-state" class="monitor-state">Idle</span>
+        </div>
+        <div class="metric-grid">
+          <div><span>Backend</span><strong id="monitor-backend">-</strong></div>
+          <div><span>Model</span><strong id="monitor-model">-</strong></div>
+          <div><span>Prompt pack</span><strong id="monitor-prompt">-</strong></div>
+          <div><span>Queued runs</span><strong id="monitor-runs">0</strong></div>
+        </div>
+        <div class="monitor-grid">
+          <div>
+            <h3>Recent Events</h3>
+            <ul id="monitor-events" class="event-list"><li>No events yet.</li></ul>
+          </div>
+          <div>
+            <h3>Agent Run Files</h3>
+            <ul id="monitor-files" class="event-list"><li>No run files yet.</li></ul>
+          </div>
+        </div>
       </section>
     </main>
     <script src="/app.js"></script>

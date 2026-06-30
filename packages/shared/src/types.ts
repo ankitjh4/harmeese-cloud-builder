@@ -13,10 +13,23 @@ export type Boilerplate =
   | "saas-landing-page"
   | "course-platform";
 
+export type AgentBackend =
+  | "openrouter"
+  | "claude-code-placeholder";
+
+export type PromptPack =
+  | "harmeese-webmaster"
+  | "app-builder"
+  | "saas-landing";
+
 export interface LaunchJobInput {
   projectName: string;
   jarvislabsApiKey?: string;
   anthropicApiKey?: string;
+  openrouterApiKey?: string;
+  openrouterModel?: string;
+  agentBackend?: AgentBackend;
+  promptPack?: PromptPack;
   telegramBotToken?: string;
   telegramChatId?: string;
   boilerplate: Boilerplate;
@@ -48,4 +61,21 @@ export type CommandSafety = "allowed" | "needs_approval" | "blocked";
 export interface CommandClassification {
   classification: CommandSafety;
   reason: string;
+}
+
+export type AgentEventType =
+  | "job"
+  | "agent"
+  | "openrouter"
+  | "telegram"
+  | "deploy"
+  | "error";
+
+export interface AgentEvent {
+  id: string;
+  jobId: string;
+  type: AgentEventType;
+  message: string;
+  createdAt: string;
+  metadata?: Record<string, string | number | boolean>;
 }

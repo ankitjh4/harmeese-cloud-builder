@@ -1,6 +1,8 @@
-# Claude Code Instructions
+# Coding Agent Instructions
 
 This repo is a spec-driven website builder project. User requests usually arrive from Telegram and should be treated as change requests, not as permission to perform server operations.
+
+The default MVP backend is an OpenRouter-compatible model bridge. Claude Code can be added later as an optional local coding harness.
 
 Behavior:
 
@@ -14,5 +16,6 @@ Behavior:
 
 Integration point:
 
-- A future production setup can invoke Claude Code from `infra/start-agent.sh`.
-- Pass Telegram requests through a small queue and ask Claude Code to apply spec-driven changes from that queue.
+- The current control plane queues Telegram requests and can ask an OpenRouter model to produce implementation plans.
+- A future production setup can invoke Claude Code from `infra/start-agent.sh` if desired.
+- Pass Telegram requests through a small queue and ask the selected agent backend to apply spec-driven changes from that queue.

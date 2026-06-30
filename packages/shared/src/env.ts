@@ -7,6 +7,8 @@ export interface AppEnv {
   mode: HarmeeseMode;
   jarvislabsApiKey: string;
   anthropicApiKey: string;
+  openrouterApiKey: string;
+  openrouterModel: string;
   telegramBotToken: string;
   telegramChatId: string;
   defaultProjectName: string;
@@ -47,6 +49,8 @@ export function readEnv(): AppEnv {
     mode,
     jarvislabsApiKey: process.env.JARVISLABS_API_KEY ?? "",
     anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
+    openrouterApiKey: process.env.OPENROUTER_API_KEY ?? "",
+    openrouterModel: process.env.OPENROUTER_MODEL ?? "anthropic/claude-3.5-sonnet",
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
     telegramChatId: process.env.TELEGRAM_CHAT_ID ?? "",
     defaultProjectName: process.env.DEFAULT_PROJECT_NAME ?? "ai-training-site",

@@ -1,8 +1,11 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { readEnv } from "@harmeese/shared/env.js";
 import type { JobRecord } from "@harmeese/shared/types.js";
+import { recordAgentEvent } from "./agentMonitor.js";
 import { findLatestJobForChat } from "./jobStore.js";
 import { addLog, getLogs } from "./logs.js";
+import { createOpenRouterPlan } from "./openRouterAgent.js";
 import { getProjectPath } from "./provisioner.js";
 
 export interface TelegramUpdate {
@@ -48,6 +51,37 @@ async function queueChange(job: JobRecord, request: string): Promise<string> {
   const existing = await readFile(tasksPath, "utf8").catch(() => "# Tasks\n");
   await writeFile(tasksPath, `${existing.trim()}\n\n## Telegram change request - ${now}\n\n- [ ] ${request}\n`);
 
+  const [productSpec, designSpec, tasksSpec] = await Promise.all([
+    readFile(join(project, "specs", "product.md"), "utf8").catch(() => ""),
+    readFile(join(project, "specs", "design.md"), "utf8").catch(() => ""),
+    readFile(tasksPath, "utf8").catch(() => "")
+  ]);
+  const plan = job.agentBackend === "claude-code-placeholder"
+    ? {
+        backend: "placeholder" as const,
+        model: "claude-code-placeholder",
+        content: [
+          "Claude Code placeholder selected.",
+          "",
+          "Interpreted task:",
+          request,
+          "",
+          "Proposed implementation steps:",
+          "1. Inspect specs.",
+          "2. Prepare a scoped patch.",
+          "3. Run build/test.",
+          "4. Report changed files and verification."
+        ].join("\n")
+      }
+    : await createOpenRouterPlan({
+        job,
+        env: readEnv(),
+        request,
+        productSpec,
+        designSpec,
+        tasksSpec
+      });
+
   const runsDir = join(project, "agent_runs");
   await mkdir(runsDir, { recursive: true });
   await writeFile(join(runsDir, `${safeName}.md`), [
@@ -55,22 +89,25 @@ async function queueChange(job: JobRecord, request: string): Promise<string> {
     "",
     `User request: ${request}`,
     "",
-    "Interpreted task: Queue a spec-driven website update for a future coding-agent run.",
+    `Backend: ${plan.backend}`,
+    `Model: ${plan.model}`,
+    `Prompt pack: ${job.promptPack ?? "harmeese-webmaster"}`,
     "",
-    "Affected files:",
-    "- specs/tasks.md",
-    "- Future implementation files to be selected by the coding agent",
+    "Agent plan:",
     "",
-    "Proposed implementation steps:",
-    "1. Inspect specs/product.md, specs/design.md, and specs/tasks.md.",
-    "2. Update specs before implementation if the request changes product or design intent.",
-    "3. Implement the smallest safe website change.",
-    "4. Run build/test before reporting success.",
+    plan.content,
     "",
     "Status: queued",
     ""
   ].join("\n"));
   await addLog(job.id, `Queued Telegram change request: ${request}`);
+  await recordAgentEvent(job.id, "agent", "Queued Telegram change request.", { request });
+  await recordAgentEvent(job.id, plan.backend === "openrouter" ? "openrouter" : "agent", "Created agent run plan.", {
+    backend: plan.backend,
+    model: plan.model,
+    promptTokens: plan.tokensPrompt ?? 0,
+    completionTokens: plan.tokensCompletion ?? 0
+  });
   return "Change queued for spec-driven implementation. A patch plan was written under agent_runs/.";
 }
 
@@ -98,6 +135,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<{ ok
     reply = request ? await queueChange(job, request) : "Usage: /change <request>";
   } else if (text === "/deploy") {
     await addLog(job.id, job.mode === "mock" ? "Mock deploy completed." : "Deploy requested for real provisioner hook.");
+    await recordAgentEvent(job.id, "deploy", job.mode === "mock" ? "Mock deploy completed." : "Deploy requested for real provisioner hook.");
     reply = job.mode === "mock" ? "Mock deploy completed." : "Deploy hook queued for real provisioner integration.";
   } else {
     reply = helpText();

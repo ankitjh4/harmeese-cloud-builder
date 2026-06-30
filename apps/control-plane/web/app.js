@@ -4,6 +4,13 @@ const logsEl = document.querySelector("#logs");
 const websiteLink = document.querySelector("#website-link");
 const agentStatus = document.querySelector("#agent-status");
 const instanceId = document.querySelector("#instance-id");
+const monitorState = document.querySelector("#monitor-state");
+const monitorBackend = document.querySelector("#monitor-backend");
+const monitorModel = document.querySelector("#monitor-model");
+const monitorPrompt = document.querySelector("#monitor-prompt");
+const monitorRuns = document.querySelector("#monitor-runs");
+const monitorEvents = document.querySelector("#monitor-events");
+const monitorFiles = document.querySelector("#monitor-files");
 
 let activeJobId = null;
 let pollTimer = null;
@@ -22,15 +29,17 @@ async function fetchJson(url, options) {
 
 async function pollJob() {
   if (!activeJobId) return;
-  const [{ job }, { logs }] = await Promise.all([
+  const [{ job }, { logs }, { monitor }] = await Promise.all([
     fetchJson(`/api/jobs/${activeJobId}`),
-    fetchJson(`/api/jobs/${activeJobId}/logs`)
+    fetchJson(`/api/jobs/${activeJobId}/logs`),
+    fetchJson(`/api/jobs/${activeJobId}/monitor`)
   ]);
 
   setStatus(`${job.projectName}: ${job.status}`, job.status);
   logsEl.textContent = logs.join("\n") || "Waiting for first log...";
   agentStatus.textContent = `Agent status: ${job.agentStatus || "pending"}`;
   instanceId.textContent = `Instance: ${job.instanceId || "pending"}`;
+  renderMonitor(monitor);
 
   if (job.websiteUrl) {
     websiteLink.textContent = job.websiteUrl;
@@ -41,6 +50,34 @@ async function pollJob() {
     clearInterval(pollTimer);
     pollTimer = null;
   }
+}
+
+function renderList(el, items, formatter) {
+  el.innerHTML = "";
+  if (!items.length) {
+    const li = document.createElement("li");
+    li.textContent = "No entries yet.";
+    el.appendChild(li);
+    return;
+  }
+  for (const item of items) {
+    const li = document.createElement("li");
+    li.textContent = formatter(item);
+    el.appendChild(li);
+  }
+}
+
+function renderMonitor(monitor) {
+  monitorState.textContent = monitor.status;
+  monitorBackend.textContent = monitor.backend;
+  monitorModel.textContent = monitor.model;
+  monitorPrompt.textContent = monitor.promptPack;
+  monitorRuns.textContent = String(monitor.metrics.queuedRuns);
+  renderList(monitorEvents, monitor.recentEvents, (event) => {
+    const time = new Date(event.createdAt).toLocaleTimeString();
+    return `${time} [${event.type}] ${event.message}`;
+  });
+  renderList(monitorFiles, monitor.agentRuns, (file) => file);
 }
 
 form.addEventListener("submit", async (event) => {

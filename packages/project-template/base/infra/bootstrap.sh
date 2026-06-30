@@ -18,8 +18,15 @@ require_command() {
 }
 
 install_claude_code() {
-  log "TODO: install Claude Code or compatible coding agent here"
-  log "Fill this function after confirming the official install command for your environment."
+  log "TODO: optional Claude Code install goes here if this project uses the Claude Code harness."
+  log "OpenRouter is the default MVP bridge and does not require a local Claude Code install."
+}
+
+configure_openrouter_bridge() {
+  log "Configuring OpenRouter-compatible agent bridge."
+  if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+    log "OPENROUTER_API_KEY is empty; agent planning will use the local safe placeholder."
+  fi
 }
 
 prepare_project_dir() {
@@ -44,6 +51,10 @@ CONTROL_PLANE_URL=$CONTROL_PLANE_URL
 TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
 TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
 ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+OPENROUTER_MODEL=${OPENROUTER_MODEL:-anthropic/claude-3.5-sonnet}
+AGENT_BACKEND=${AGENT_BACKEND:-openrouter}
+PROMPT_PACK=${PROMPT_PACK:-harmeese-webmaster}
 ENV
   chmod 600 "$PROJECT_DIR/.env"
   log "Wrote environment file."
@@ -74,6 +85,7 @@ main() {
   prepare_project_dir
   check_runtime
   install_claude_code
+  configure_openrouter_bridge
   write_env
   install_dependencies
   start_website
