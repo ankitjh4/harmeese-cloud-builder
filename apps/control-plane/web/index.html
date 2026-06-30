@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Harmeese Cloud Builder</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Self-hosted AI webmaster</p>
+          <h1>Harmeese Cloud Builder</h1>
+          <p class="tagline">Launch a Telegram-controlled AI coding server for your website.</p>
+        </div>
+        <div class="mode-pill">Mock mode default</div>
+      </section>
+
+      <section class="layout">
+        <form id="launch-form" class="panel">
+          <h2>Launch AI Builder</h2>
+          <label>
+            Project name
+            <input name="projectName" value="neuraledge-academy" required />
+          </label>
+          <label>
+            JarvisLabs API key
+            <input name="jarvislabsApiKey" type="password" autocomplete="off" placeholder="Optional in mock mode" />
+          </label>
+          <label>
+            Anthropic API key
+            <input name="anthropicApiKey" type="password" autocomplete="off" placeholder="Optional in mock mode" />
+          </label>
+          <label>
+            Telegram bot token
+            <input name="telegramBotToken" type="password" autocomplete="off" placeholder="Optional for local demo" />
+          </label>
+          <label>
+            Telegram chat ID
+            <input name="telegramChatId" placeholder="123456789 or pairing chat ID" />
+          </label>
+          <label>
+            Boilerplate
+            <select name="boilerplate">
+              <option value="ai-training-company">AI Training Company Website</option>
+              <option value="saas-landing-page">SaaS Landing Page</option>
+              <option value="course-platform">Course Platform</option>
+            </select>
+          </label>
+          <button type="submit">Launch AI Builder</button>
+        </form>
+
+        <section class="panel status-panel">
+          <h2>Job Status</h2>
+          <div id="status" class="status">No job launched yet.</div>
+          <div class="links">
+            <h3>Links</h3>
+            <a id="website-link" href="#" target="_blank" rel="noreferrer">Website URL pending</a>
+            <span id="agent-status">Agent status pending</span>
+            <span id="instance-id">Mock instance ID pending</span>
+          </div>
+          <h3>Provisioning Logs</h3>
+          <pre id="logs" class="logs">Launch a job to see logs.</pre>
+        </section>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

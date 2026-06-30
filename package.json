@@ -1,0 +1,22 @@
+{
+  "name": "harmeese-cloud-builder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted OpenClaw-style website builder demo controlled from Telegram.",
+  "scripts": {
+    "dev": "corepack pnpm --filter @harmeese/shared build && corepack pnpm --filter @harmeese/jarvislabs-adapter build && corepack pnpm --parallel --filter @harmeese/control-plane --filter @harmeese/demo-site dev",
+    "build": "corepack pnpm -r build",
+    "test": "corepack pnpm -r test",
+    "lint": "corepack pnpm -r lint",
+    "typecheck": "corepack pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.6.0"
+}
