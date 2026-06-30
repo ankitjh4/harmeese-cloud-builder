@@ -74,6 +74,24 @@ When Telegram receives `/change <request>`, Harmeese:
 
 If no OpenRouter key is configured, the same flow uses a local safe planner so demos do not crash.
 
+## AI-First Website Backend
+
+The demo website treats AI as the backend for visitor interactions. Lead form submissions now flow through:
+
+```text
+form submit
+  -> AI backend handler
+  -> lead summary / priority / draft reply / automation hooks
+  -> local lead store
+  -> Telegram notification
+```
+
+The AI backend can queue hooks such as internal form filling, reply drafting, proposal creation, and follow-up call tasks. The MVP deliberately queues these hooks instead of performing irreversible external side effects. If OpenRouter is unavailable, the website still saves the lead and uses a local fallback handling plan.
+
+## No-Downtime Change Contract
+
+Telegram `/change` requests must not take the live website down. They are staged into `specs/tasks.md` and `agent_runs/`; deployment is a separate step. Production integration should use a health-checked staging build and only switch traffic after the new website is ready.
+
 ### Prompt Packs
 
 The repo includes original, safe prompt packs:

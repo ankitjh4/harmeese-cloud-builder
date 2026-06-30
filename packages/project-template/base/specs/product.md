@@ -22,11 +22,24 @@ Create a modern lead-generation website for a corporate AI training company. The
 When a visitor submits the lead form:
 
 1. Save the lead locally.
-2. Notify the configured Telegram chat.
-3. Include suggested reply actions: draft reply, summarize, create proposal, update site.
+2. Route the submission through the AI backend.
+3. Have the AI backend summarize, prioritize, draft a reply, and queue safe automation hooks.
+4. Notify the configured Telegram chat with the lead and AI handling plan.
+5. Include suggested reply actions: draft reply, summarize, create proposal, update site.
+
+The website backend is intentionally AI-first. Forms and interactions should call AI handling hooks instead of requiring a hand-coded business workflow for every interaction.
+
+## Availability Contract
+
+- A Telegram `/change` request must never directly restart, overwrite, or take down the live website.
+- Change requests are staged in `specs/tasks.md` and `agent_runs/`.
+- Deployment is a separate action and must use health checks or a blue/green-style handoff before traffic moves.
+- If the AI backend is unavailable, forms must still save locally and notify/log a fallback handling plan.
 
 ## Success Criteria
 
 - Visitor understands the training offer within the first viewport.
 - Lead form works on desktop and mobile.
 - Telegram notification is sent when credentials exist and logged when they do not.
+- AI backend handling produces a lead summary, priority, draft reply, and automation hooks.
+- The live website stays available while Telegram changes are queued.

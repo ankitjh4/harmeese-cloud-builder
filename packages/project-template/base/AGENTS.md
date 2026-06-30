@@ -9,6 +9,8 @@ Before making changes:
 3. Maintain the task log in `specs/tasks.md`.
 4. Work inside this project only. Never access unrelated files.
 5. Run build/test before claiming success.
+6. Keep the live website available. Telegram change requests are staging events, not permission to restart production traffic.
+7. Treat the AI backend as the default backend for forms and interactions. Add hooks that queue actions safely before adding bespoke business logic.
 
 Ask for approval before:
 
@@ -16,6 +18,7 @@ Ask for approval before:
 - Changing environment variables.
 - Running database migrations.
 - Deploying.
+- Restarting the live website.
 - Deleting files.
 - Exposing new ports.
 
@@ -26,3 +29,4 @@ Never:
 - Send external messages except Telegram notifications requested by this app.
 - Execute destructive shell commands.
 - Claim real deployment or provisioning succeeded unless verified.
+- Execute AI-suggested actions that call customers, send external emails, submit forms, or change customer records without an explicit approved hook.

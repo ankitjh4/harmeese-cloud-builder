@@ -134,9 +134,12 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<{ ok
     const request = text.slice("/change ".length).trim();
     reply = request ? await queueChange(job, request) : "Usage: /change <request>";
   } else if (text === "/deploy") {
-    await addLog(job.id, job.mode === "mock" ? "Mock deploy completed." : "Deploy requested for real provisioner hook.");
-    await recordAgentEvent(job.id, "deploy", job.mode === "mock" ? "Mock deploy completed." : "Deploy requested for real provisioner hook.");
-    reply = job.mode === "mock" ? "Mock deploy completed." : "Deploy hook queued for real provisioner integration.";
+    const deployMessage = job.mode === "mock"
+      ? "Mock deploy completed. Live website stayed online; staged changes were not applied automatically."
+      : "Deploy requested for real provisioner hook. Production integration must health-check a staged build before traffic handoff.";
+    await addLog(job.id, deployMessage);
+    await recordAgentEvent(job.id, "deploy", deployMessage);
+    reply = deployMessage;
   } else {
     reply = helpText();
   }

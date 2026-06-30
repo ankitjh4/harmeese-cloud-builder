@@ -1,7 +1,8 @@
 import type { LeadInput } from "@harmeese/shared/types.js";
+import type { StoredLead } from "./leadStore.js";
 
-function formatLeadMessage(lead: LeadInput): string {
-  return [
+function formatLeadMessage(lead: LeadInput | StoredLead): string {
+  const message = [
     "New website lead",
     "",
     `Name: ${lead.name}`,
@@ -9,7 +10,28 @@ function formatLeadMessage(lead: LeadInput): string {
     `Email: ${lead.email}`,
     `Team size: ${lead.teamSize}`,
     `Interest: ${lead.interest}`,
-    `Message: ${lead.message}`,
+    `Message: ${lead.message}`
+  ];
+
+  if ("aiHandling" in lead && lead.aiHandling) {
+    message.push(
+      "",
+      "AI backend handling",
+      `Backend: ${lead.aiHandling.backend}`,
+      `Model: ${lead.aiHandling.model}`,
+      `Priority: ${lead.aiHandling.priority}`,
+      `Summary: ${lead.aiHandling.summary}`,
+      "",
+      "Recommended actions:",
+      ...lead.aiHandling.recommendedActions.map((action) => `- ${action}`),
+      "",
+      "Draft reply:",
+      lead.aiHandling.draftReply
+    );
+  }
+
+  return [
+    ...message,
     "",
     "Reply with:",
     "- draft reply",
@@ -19,7 +41,7 @@ function formatLeadMessage(lead: LeadInput): string {
   ].join("\n");
 }
 
-export async function notifyLead(lead: LeadInput): Promise<void> {
+export async function notifyLead(lead: LeadInput | StoredLead): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   const text = formatLeadMessage(lead);

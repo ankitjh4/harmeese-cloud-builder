@@ -7,6 +7,8 @@
 - [x] Include a lead form.
 - [x] Send Telegram notifications when credentials are configured.
 - [x] Log notifications locally when credentials are missing.
+- [x] Keep Telegram `/change` requests staged so the website remains online.
+- [x] Route form submissions through an AI backend handling hook with a safe fallback.
 
 ## Future Change Requests
 

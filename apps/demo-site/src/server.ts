@@ -1,6 +1,8 @@
 import express from "express";
 import { loadEnvFile } from "@harmeese/shared/env.js";
 import { landingPage } from "./pages/landing.js";
+import { handleLeadWithAi } from "./services/aiBackend.js";
+import { queueAiActionHooks } from "./services/actionHooks.js";
 import { notifyLead } from "./services/telegramNotify.js";
 import { parseLead, saveLead } from "./services/leadStore.js";
 
@@ -17,8 +19,10 @@ app.get("/", (req, res) => res.type("html").send(landingPage(req.query.success =
 app.post("/lead", async (req, res, next) => {
   try {
     const lead = parseLead(req.body);
-    await saveLead(lead);
-    await notifyLead(lead);
+    const aiHandling = await handleLeadWithAi(lead);
+    const storedLead = await saveLead(lead, aiHandling);
+    await queueAiActionHooks(lead, aiHandling);
+    await notifyLead(storedLead);
     res.redirect("/?success=1#lead");
   } catch (error) {
     next(error);

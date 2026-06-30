@@ -56,6 +56,17 @@ export interface LeadInput {
   message: string;
 }
 
+export interface LeadAiHandling {
+  backend: "openrouter" | "local-fallback";
+  model: string;
+  summary: string;
+  priority: "low" | "medium" | "high";
+  recommendedActions: string[];
+  draftReply: string;
+  automationHooks: string[];
+  rawPlan?: string;
+}
+
 export type CommandSafety = "allowed" | "needs_approval" | "blocked";
 
 export interface CommandClassification {
